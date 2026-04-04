@@ -10,9 +10,11 @@ export default function QuickAddPage() {
   const [knownItems, setKnownItems] = useState<KnownItem[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [lastAdded, setLastAdded] = useState('')
+  const [userName, setUserName] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    setUserName(localStorage.getItem('home-tracker-name') || '')
     fetch('/api/items').then((r) => r.json()).then(setKnownItems)
   }, [])
 
@@ -50,7 +52,12 @@ export default function QuickAddPage() {
 
   return (
     <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900">Quick Add</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Quick Add</h1>
+        {userName && (
+          <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
+        )}
+      </div>
 
       <div className="mb-4">
         <input
