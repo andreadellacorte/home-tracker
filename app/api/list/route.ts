@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 
   let name: string = body.name
   let knownItemId: string | undefined
+  let emoji: string | undefined
 
   if (body.slug) {
     const knownItems = await getKnownItems()
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     if (known) {
       name = known.name
       knownItemId = known.id
+      emoji = known.emoji
     } else {
       // Slug provided but unknown — use slug as display name
       name = name || body.slug
@@ -54,6 +56,7 @@ export async function POST(request: Request) {
     id: randomUUID(),
     knownItemId,
     name,
+    emoji,
     quantity: body.quantity ?? 1,
     status: 'active',
     addedBy: body.addedBy,

@@ -76,6 +76,7 @@ function CategorySection({
             <li key={item.id} className={`px-4 py-3 ${!item.active ? 'opacity-50' : ''}`}>
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">
+                  {item.emoji && <span className="text-xl flex-shrink-0">{item.emoji}</span>}
                   <span className="font-semibold text-gray-900 truncate">{item.name}</span>
                   <span className="text-xs text-gray-400 font-mono flex-shrink-0">{item.slug}</span>
                 </div>
@@ -114,7 +115,10 @@ function CategorySection({
   )
 }
 
-const EMPTY_FORM = { slug: '', name: '', category: 'Pantry', active: true }
+const EMPTY_FORM = { slug: '', name: '', emoji: '', category: 'Pantry', active: true }
+
+const SUGGESTED_EMOJIS = ['🥛','🥚','🧈','🍞','🧀','🥩','🐟','🍅','🥦','🥕','🍎','🍋',
+  '🫒','☕','🍝','🍚','🧂','🫙','🍯','🥫','🧃','🍷','🫧','🗑️','🧻','🧴','🧼','🪣']
 
 export default function ManagePage() {
   const [items, setItems] = useState<KnownItem[]>([])
@@ -141,7 +145,7 @@ export default function ManagePage() {
 
   function startEdit(item: KnownItem) {
     setEditId(item.id)
-    setForm({ slug: item.slug, name: item.name, category: item.category, active: item.active })
+    setForm({ slug: item.slug, name: item.name, emoji: item.emoji || '', category: item.category, active: item.active })
     setError('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -287,6 +291,34 @@ export default function ManagePage() {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
+          <div>
+            <div className="flex gap-2 mb-2">
+              <div className="w-12 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-2xl flex-shrink-0">
+                {form.emoji || '?'}
+              </div>
+              <input
+                type="text"
+                placeholder="Emoji (paste or type)"
+                value={form.emoji}
+                onChange={(e) => setForm({ ...form, emoji: e.target.value })}
+                className="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {SUGGESTED_EMOJIS.map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  onClick={() => setForm({ ...form, emoji: e })}
+                  className={`text-xl w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+                    form.emoji === e ? 'bg-green-100 ring-2 ring-green-400' : 'bg-gray-50 active:bg-gray-100'
+                  }`}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}

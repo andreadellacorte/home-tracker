@@ -2,6 +2,7 @@ export interface KnownItem {
   id: string
   slug: string
   name: string
+  emoji?: string
   category: string
   active: boolean
   createdAt: string
@@ -11,6 +12,7 @@ export interface ShoppingListEntry {
   id: string
   knownItemId?: string
   name: string
+  emoji?: string
   quantity: number
   status: 'active' | 'bought'
   addedBy?: string

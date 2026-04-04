@@ -104,6 +104,9 @@ export default function ListPage() {
                   className="w-7 h-7 rounded-full border-2 border-green-500 flex-shrink-0 hover:bg-green-50 active:bg-green-100 transition-colors"
                   aria-label="Mark as bought"
                 />
+                {item.emoji && (
+                  <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-gray-900 truncate">{item.name}</div>
                   <div className="text-xs text-gray-400 mt-0.5">
