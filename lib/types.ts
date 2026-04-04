@@ -14,6 +14,7 @@ export interface ShoppingListEntry {
   quantity: number
   status: 'active' | 'bought'
   addedBy?: string
+  source?: 'nfc' | 'quick-add' | 'manual'
   updatedAt: string
   createdAt: string
 }

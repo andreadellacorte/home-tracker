@@ -39,7 +39,7 @@ export default function QuickAddPage() {
       const res = await fetch('/api/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, slug, addedBy: addedBy || undefined }),
+        body: JSON.stringify({ name, slug, addedBy: addedBy || undefined, source: 'quick-add' }),
       })
       if (!res.ok) throw new Error()
       setLastAdded(name)

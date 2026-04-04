@@ -8,7 +8,7 @@ export async function GET() {
   return NextResponse.json(list)
 }
 
-// POST body: { slug?, name?, quantity?, addedBy? }
+// POST body: { slug?, name?, quantity?, addedBy?, source? }
 // If slug provided, resolves known item and deduplicates active entries.
 export async function POST(request: Request) {
   const body = await request.json()
@@ -45,6 +45,7 @@ export async function POST(request: Request) {
     existing.quantity += body.quantity ?? 1
     existing.updatedAt = now
     if (body.addedBy) existing.addedBy = body.addedBy
+    if (body.source) existing.source = body.source
     await saveShoppingList(list)
     return NextResponse.json(existing)
   }
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
     quantity: body.quantity ?? 1,
     status: 'active',
     addedBy: body.addedBy,
+    source: body.source,
     updatedAt: now,
     createdAt: now,
   }

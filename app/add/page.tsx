@@ -68,7 +68,7 @@ function AddItemInner() {
       const res = await fetch('/api/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, quantity, addedBy: addedBy || undefined }),
+        body: JSON.stringify({ slug, quantity, addedBy: addedBy || undefined, source: 'nfc' }),
       })
       if (!res.ok) throw new Error('Failed')
       setState('success')
