@@ -5,21 +5,112 @@ import Nav from '@/components/Nav'
 import type { KnownItem } from '@/lib/types'
 import { CATEGORIES } from '@/lib/types'
 
-const siteUrl =
-  typeof window !== 'undefined'
+function siteUrl() {
+  return typeof window !== 'undefined'
     ? window.location.origin
     : process.env.NEXT_PUBLIC_SITE_URL || ''
+}
 
-function NfcUrl({ slug }: { slug: string }) {
-  const url = `${siteUrl}/add?item=${slug}`
+function nfcUrl(slug: string) {
+  return `${siteUrl()}/add?item=${slug}`
+}
+
+function CopyButton({ slug }: { slug: string }) {
+  const [copied, setCopied] = useState(false)
+
+  function copy() {
+    navigator.clipboard?.writeText(nfcUrl(slug))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <span
-      className="text-xs text-blue-600 font-mono break-all cursor-pointer"
-      onClick={() => navigator.clipboard?.writeText(url)}
-      title="Tap to copy"
+    <button
+      onClick={copy}
+      className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
+        copied
+          ? 'border-green-300 bg-green-50 text-green-600'
+          : 'border-gray-200 text-gray-500 active:bg-gray-50'
+      }`}
     >
-      {url}
-    </span>
+      {copied ? '✓ Copied' : '⎘ Copy URL'}
+    </button>
+  )
+}
+
+function CategorySection({
+  cat,
+  items,
+  defaultOpen,
+  onEdit,
+  onToggleActive,
+  onRemove,
+}: {
+  cat: string
+  items: KnownItem[]
+  defaultOpen: boolean
+  onEdit: (item: KnownItem) => void
+  onToggleActive: (item: KnownItem) => void
+  onRemove: (id: string) => void
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="mb-2 rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
+      >
+        <span className="font-semibold text-gray-700 text-sm">{cat}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">{items.length}</span>
+          <span className={`text-gray-400 text-xs transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </div>
+      </button>
+
+      {open && (
+        <ul className="border-t border-gray-100 divide-y divide-gray-100">
+          {items.map((item) => (
+            <li key={item.id} className={`px-4 py-3 ${!item.active ? 'opacity-50' : ''}`}>
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-semibold text-gray-900 truncate">{item.name}</span>
+                  <span className="text-xs text-gray-400 font-mono flex-shrink-0">{item.slug}</span>
+                </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => onToggleActive(item)}
+                    className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
+                  >
+                    {item.active ? 'Off' : 'On'}
+                  </button>
+                  <button
+                    onClick={() => onEdit(item)}
+                    className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onRemove(item.id)}
+                    className="px-2 py-1 rounded text-xs border border-red-100 text-red-400 active:bg-red-50"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 font-mono truncate flex-1">
+                  {nfcUrl(item.slug)}
+                </span>
+                <CopyButton slug={item.slug} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -46,6 +137,7 @@ export default function ManagePage() {
     setEditId(item.id)
     setForm({ slug: item.slug, name: item.name, category: item.category, active: item.active })
     setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function cancelEdit() {
@@ -121,6 +213,8 @@ export default function ManagePage() {
   const otherItems = items.filter((i) => !CATEGORIES.includes(i.category as typeof CATEGORIES[number]))
   if (otherItems.length > 0) grouped['Other'] = otherItems
 
+  const groupEntries = Object.entries(grouped)
+
   return (
     <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
       <div className="flex items-center justify-between mb-6">
@@ -194,47 +288,16 @@ export default function ManagePage() {
         </div>
       )}
 
-      {Object.entries(grouped).map(([cat, catItems]) => (
-        <div key={cat} className="mb-6">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{cat}</h3>
-          <ul className="space-y-2">
-            {catItems.map((item) => (
-              <li key={item.id} className={`bg-white rounded-xl border border-gray-100 p-3 shadow-sm ${!item.active ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">{item.name}</span>
-                      <span className="text-xs text-gray-400 font-mono">{item.slug}</span>
-                    </div>
-                    <div className="mt-1">
-                      <NfcUrl slug={item.slug} />
-                    </div>
-                  </div>
-                  <div className="flex gap-1 flex-shrink-0">
-                    <button
-                      onClick={() => toggleActive(item)}
-                      className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
-                    >
-                      {item.active ? 'Disable' : 'Enable'}
-                    </button>
-                    <button
-                      onClick={() => startEdit(item)}
-                      className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => remove(item.id)}
-                      className="px-2 py-1 rounded text-xs border border-red-100 text-red-400 active:bg-red-50"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {groupEntries.map(([cat, catItems], idx) => (
+        <CategorySection
+          key={cat}
+          cat={cat}
+          items={catItems}
+          defaultOpen={idx === 0}
+          onEdit={startEdit}
+          onToggleActive={toggleActive}
+          onRemove={remove}
+        />
       ))}
 
       <Nav />
