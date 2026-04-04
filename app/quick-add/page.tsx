@@ -8,14 +8,11 @@ import type { KnownItem } from '@/lib/types'
 export default function QuickAddPage() {
   const [query, setQuery] = useState('')
   const [knownItems, setKnownItems] = useState<KnownItem[]>([])
-  const [addedBy, setAddedBy] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [lastAdded, setLastAdded] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const saved = localStorage.getItem('home-tracker-name')
-    if (saved) setAddedBy(saved)
     fetch('/api/items').then((r) => r.json()).then(setKnownItems)
   }, [])
 
@@ -33,13 +30,13 @@ export default function QuickAddPage() {
     : []
 
   async function addItem(name: string, slug?: string) {
-    if (addedBy) localStorage.setItem('home-tracker-name', addedBy)
+    const addedBy = localStorage.getItem('home-tracker-name') || undefined
     setStatus('loading')
     try {
       const res = await fetch('/api/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, slug, addedBy: addedBy || undefined, source: 'quick-add' }),
+        body: JSON.stringify({ name, slug, addedBy, source: 'quick-add' }),
       })
       if (!res.ok) throw new Error()
       setLastAdded(name)
@@ -103,16 +100,6 @@ export default function QuickAddPage() {
           Add &ldquo;{query}&rdquo; as new item
         </button>
       )}
-
-      <div className="mt-6">
-        <input
-          type="text"
-          placeholder="Your name (optional, saved locally)"
-          value={addedBy}
-          onChange={(e) => setAddedBy(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
 
       {status === 'success' && (
         <div className="mt-4 bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm font-medium text-center">

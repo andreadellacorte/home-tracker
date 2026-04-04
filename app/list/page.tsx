@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Nav from '@/components/Nav'
 import InstallBanner from '@/components/InstallBanner'
 import type { ShoppingListEntry } from '@/lib/types'
@@ -70,7 +71,7 @@ export default function ListPage() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">Shopping List</h1>
           {userName && (
-            <span className="text-xs text-gray-400">Hi, {userName}</span>
+            <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
           )}
         </div>
 

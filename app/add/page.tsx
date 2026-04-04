@@ -11,15 +11,8 @@ function AddItemInner() {
   const slug = params.get('item') || ''
   const [displayName, setDisplayName] = useState(slug.replace(/-/g, ' '))
   const [quantity, setQuantity] = useState(1)
-  const [addedBy, setAddedBy] = useState('')
   const [state, setState] = useState<State>('idle')
   const [isExisting, setIsExisting] = useState(false)
-
-  // Load saved name from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('home-tracker-name')
-    if (saved) setAddedBy(saved)
-  }, [])
 
   // Resolve display name from known items
   useEffect(() => {
@@ -62,13 +55,13 @@ function AddItemInner() {
   }
 
   async function handleAdd() {
-    if (addedBy) localStorage.setItem('home-tracker-name', addedBy)
+    const addedBy = localStorage.getItem('home-tracker-name') || undefined
     setState('loading')
     try {
       const res = await fetch('/api/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, quantity, addedBy: addedBy || undefined, source: 'nfc' }),
+        body: JSON.stringify({ slug, quantity, addedBy, source: 'nfc' }),
       })
       if (!res.ok) throw new Error('Failed')
       setState('success')
@@ -127,17 +120,6 @@ function AddItemInner() {
           >
             +
           </button>
-        </div>
-
-        {/* Name field */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Your name (optional)"
-            value={addedBy}
-            onChange={(e) => setAddedBy(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-center text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
         </div>
 
         <button
