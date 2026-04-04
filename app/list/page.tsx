@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
-import NameModal from '@/components/NameModal'
 import InstallBanner from '@/components/InstallBanner'
 import type { ShoppingListEntry } from '@/lib/types'
 
@@ -20,13 +19,11 @@ export default function ListPage() {
   const [items, setItems] = useState<ShoppingListEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [undoItem, setUndoItem] = useState<ShoppingListEntry | null>(null)
-  // null = not yet checked localStorage, string = known, '' = skipped
-  const [userName, setUserName] = useState<string | null>(null)
+  const [userName, setUserName] = useState('')
 
   useEffect(() => {
-    const saved = localStorage.getItem('home-tracker-name')
-    // If key exists (even empty), don't prompt again
-    setUserName(saved !== null ? saved : undefined as unknown as null)
+    setUserName(localStorage.getItem('home-tracker-name') || '')
+    load()
   }, [])
 
   async function load() {
@@ -34,8 +31,6 @@ export default function ListPage() {
     setItems(await res.json())
     setLoading(false)
   }
-
-  useEffect(() => { load() }, [])
 
   async function markBought(id: string) {
     const item = items.find((i) => i.id === id)!
@@ -67,9 +62,6 @@ export default function ListPage() {
   const active = items.filter((i) => i.status === 'active')
   const bought = items.filter((i) => i.status === 'bought')
 
-  // Show name modal on very first visit (userName === null means localStorage key absent)
-  const showNameModal = userName === null
-
   return (
     <>
       <InstallBanner />
@@ -78,15 +70,7 @@ export default function ListPage() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">Shopping List</h1>
           {userName && (
-            <button
-              onClick={() => {
-                localStorage.removeItem('home-tracker-name')
-                setUserName(null)
-              }}
-              className="text-xs text-gray-400 hover:text-gray-600"
-            >
-              Hi, {userName} ·&nbsp;change
-            </button>
+            <span className="text-xs text-gray-400">Hi, {userName}</span>
           )}
         </div>
 
@@ -191,8 +175,6 @@ export default function ListPage() {
 
         <Nav />
       </main>
-
-      {showNameModal && <NameModal onSave={(name) => setUserName(name)} />}
     </>
   )
 }
