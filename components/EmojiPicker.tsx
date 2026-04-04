@@ -14,9 +14,10 @@ declare global {
 interface Props {
   value: string
   onChange: (emoji: string) => void
+  searchQuery?: string
 }
 
-export default function EmojiPicker({ value, onChange }: Props) {
+export default function EmojiPicker({ value, onChange, searchQuery }: Props) {
   const [open, setOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
 
@@ -24,6 +25,20 @@ export default function EmojiPicker({ value, onChange }: Props) {
   useEffect(() => {
     import('emoji-picker-element')
   }, [])
+
+  // Pre-fill search query when picker opens
+  useEffect(() => {
+    if (!open || !searchQuery) return
+    // The search input lives inside the shadow DOM
+    requestAnimationFrame(() => {
+      const picker = pickerRef.current?.querySelector('emoji-picker')
+      const input = picker?.shadowRoot?.querySelector('input[type="search"]') as HTMLInputElement | null
+      if (input) {
+        input.value = searchQuery
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      }
+    })
+  }, [open, searchQuery])
 
   // Attach event listener whenever picker is open
   useEffect(() => {

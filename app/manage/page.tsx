@@ -289,7 +289,7 @@ export default function ManagePage() {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-          <EmojiPicker value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e })} />
+          <EmojiPicker value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e })} searchQuery={form.name} />
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
