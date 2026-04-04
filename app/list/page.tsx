@@ -70,9 +70,10 @@ export default function ListPage() {
       <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">Shopping List</h1>
-          {userName && (
-            <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
-          )}
+          {userName
+            ? <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
+            : <Link href="/manage" className="text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-lg">Set your name →</Link>
+          }
         </div>
 
         {loading && (
