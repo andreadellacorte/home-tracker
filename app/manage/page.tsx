@@ -177,7 +177,10 @@ export default function ManagePage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         })
-        if (!res.ok) throw new Error(await res.text())
+        if (!res.ok) {
+          const { error } = await res.json().catch(() => ({ error: 'Error saving' }))
+          throw new Error(error)
+        }
         const updated = await res.json()
         setItems((prev) => prev.map((i) => (i.id === editId ? updated : i)))
       } else {
@@ -186,7 +189,10 @@ export default function ManagePage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         })
-        if (!res.ok) throw new Error(await res.text())
+        if (!res.ok) {
+          const { error } = await res.json().catch(() => ({ error: 'Error saving' }))
+          throw new Error(error)
+        }
         const created = await res.json()
         setItems((prev) => [...prev, created])
       }
