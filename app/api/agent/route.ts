@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getKnownItems, getShoppingList, saveShoppingList } from '@/lib/store'
+import { getKnownItems, getShoppingList, saveShoppingList, saveKnownItems } from '@/lib/store'
 import { randomUUID } from 'crypto'
 
 const META = {
@@ -7,21 +7,35 @@ const META = {
     'Machine-readable interface for the Home Tracker shopping list. ' +
     'Use GET to read current state, POST to perform actions.',
   post_actions: {
+    // Shopping list
     add: {
-      description: 'Add an item to the active shopping list. Matches by slug first, then by name (case-insensitive). Silently no-ops if the item is already active.',
-      body: { action: 'add', item: 'string — slug (e.g. "milk") or display name (e.g. "Milk")', added_by: 'string (optional)' },
+      description: 'Add an item to the active shopping list. Matches by slug first, then by name (case-insensitive). No-ops if already active.',
+      body: { action: 'add', item: 'slug or display name', added_by: 'string (optional)' },
     },
     bought: {
-      description: 'Mark an active item as bought.',
-      body: { action: 'bought', item: 'string — slug or name' },
+      description: 'Mark an active list item as bought.',
+      body: { action: 'bought', item: 'slug or display name' },
     },
     remove: {
-      description: 'Delete an item from the list entirely.',
-      body: { action: 'remove', item: 'string — slug or name' },
+      description: 'Delete an item from the shopping list entirely.',
+      body: { action: 'remove', item: 'slug or display name' },
     },
     clear_bought: {
-      description: 'Delete all items that are marked as bought.',
+      description: 'Delete all items marked as bought.',
       body: { action: 'clear_bought' },
+    },
+    // Known items
+    create_known_item: {
+      description: 'Create a new known item (makes it available for NFC tags and autocomplete).',
+      body: { action: 'create_known_item', slug: 'unique-kebab-case', name: 'Display Name', emoji: '🥛 (optional)', category: 'Dairy | Produce | Pantry | Meat & Fish | Bakery | Frozen | Cleaning | Personal Care | Other' },
+    },
+    update_known_item: {
+      description: 'Update fields on an existing known item. Only provided fields are changed.',
+      body: { action: 'update_known_item', slug: 'existing slug', name: 'optional', emoji: 'optional', category: 'optional', active: 'boolean (optional)' },
+    },
+    delete_known_item: {
+      description: 'Permanently delete a known item by slug.',
+      body: { action: 'delete_known_item', slug: 'existing slug' },
     },
   },
 }
@@ -42,9 +56,9 @@ export async function GET() {
           id, name, emoji, updated_at: updatedAt,
         })),
     },
-    known_items: knownItems
-      .filter((i) => i.active)
-      .map(({ slug, name, emoji, category }) => ({ slug, name, emoji, category })),
+    known_items: knownItems.map(({ slug, name, emoji, category, active }) => ({
+      slug, name, emoji, category, active,
+    })),
     _meta: META,
   })
 }
@@ -58,16 +72,16 @@ export async function POST(request: Request) {
   const [list, knownItems] = await Promise.all([getShoppingList(), getKnownItems()])
   const now = new Date().toISOString()
 
-  // Resolve item string → known item + display name
-  function resolve(itemStr: string) {
-    const bySlug = knownItems.find((i) => i.slug === itemStr.toLowerCase())
-    if (bySlug) return bySlug
-    const byName = knownItems.find((i) => i.name.toLowerCase() === itemStr.toLowerCase())
-    return byName || null
+  function resolveKnown(itemStr: string) {
+    return (
+      knownItems.find((i) => i.slug === itemStr.toLowerCase()) ||
+      knownItems.find((i) => i.name.toLowerCase() === itemStr.toLowerCase()) ||
+      null
+    )
   }
 
   function findActive(itemStr: string) {
-    const known = resolve(itemStr)
+    const known = resolveKnown(itemStr)
     return list.find(
       (e) =>
         e.status === 'active' &&
@@ -76,12 +90,14 @@ export async function POST(request: Request) {
   }
 
   switch (body.action) {
+
+    // ── Shopping list ────────────────────────────────────────────────────────
+
     case 'add': {
       if (!body.item) return NextResponse.json({ error: 'Missing item' }, { status: 400 })
       const existing = findActive(body.item)
       if (existing) return NextResponse.json({ ok: true, result: 'already_active', entry: existing })
-
-      const known = resolve(body.item)
+      const known = resolveKnown(body.item)
       const entry = {
         id: randomUUID(),
         knownItemId: known?.id,
@@ -110,13 +126,11 @@ export async function POST(request: Request) {
 
     case 'remove': {
       if (!body.item) return NextResponse.json({ error: 'Missing item' }, { status: 400 })
-      const known = resolve(body.item)
-      const before = list.length
+      const known = resolveKnown(body.item)
       const filtered = list.filter(
-        (e) =>
-          !(known ? e.knownItemId === known.id : e.name.toLowerCase() === body.item.toLowerCase())
+        (e) => !(known ? e.knownItemId === known.id : e.name.toLowerCase() === body.item.toLowerCase())
       )
-      if (filtered.length === before) return NextResponse.json({ error: 'Item not found' }, { status: 404 })
+      if (filtered.length === list.length) return NextResponse.json({ error: 'Item not found' }, { status: 404 })
       await saveShoppingList(filtered)
       return NextResponse.json({ ok: true, result: 'removed' })
     }
@@ -125,6 +139,50 @@ export async function POST(request: Request) {
       const filtered = list.filter((e) => e.status !== 'bought')
       await saveShoppingList(filtered)
       return NextResponse.json({ ok: true, result: 'cleared', removed: list.length - filtered.length })
+    }
+
+    // ── Known items ──────────────────────────────────────────────────────────
+
+    case 'create_known_item': {
+      const { slug, name, emoji, category } = body
+      if (!slug || !name) return NextResponse.json({ error: 'slug and name are required' }, { status: 400 })
+      if (knownItems.find((i) => i.slug === slug)) {
+        return NextResponse.json({ error: `Slug "${slug}" already exists` }, { status: 409 })
+      }
+      const item = {
+        id: randomUUID(),
+        slug,
+        name,
+        emoji,
+        category: category || 'Other',
+        active: true,
+        createdAt: now,
+      }
+      await saveKnownItems([...knownItems, item])
+      return NextResponse.json({ ok: true, result: 'created', item })
+    }
+
+    case 'update_known_item': {
+      if (!body.slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
+      const idx = knownItems.findIndex((i) => i.slug === body.slug)
+      if (idx === -1) return NextResponse.json({ error: `Slug "${body.slug}" not found` }, { status: 404 })
+      const allowed = ['name', 'emoji', 'category', 'active']
+      const updates = Object.fromEntries(
+        Object.entries(body).filter(([k]) => allowed.includes(k))
+      )
+      knownItems[idx] = { ...knownItems[idx], ...updates }
+      await saveKnownItems(knownItems)
+      return NextResponse.json({ ok: true, result: 'updated', item: knownItems[idx] })
+    }
+
+    case 'delete_known_item': {
+      if (!body.slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
+      const filtered = knownItems.filter((i) => i.slug !== body.slug)
+      if (filtered.length === knownItems.length) {
+        return NextResponse.json({ error: `Slug "${body.slug}" not found` }, { status: 404 })
+      }
+      await saveKnownItems(filtered)
+      return NextResponse.json({ ok: true, result: 'deleted' })
     }
 
     default:
