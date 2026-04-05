@@ -303,6 +303,16 @@ export default function ManagePage() {
               className="w-24 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+          {(() => {
+            const conflict = form.tag
+              ? items.find((i) => i.tag === form.tag && i.id !== editId)
+              : null
+            return conflict ? (
+              <p className="text-amber-600 text-xs mt-1">
+                ⚠ /nfc/{form.tag} is already used by <strong>{conflict.name}</strong>
+              </p>
+            ) : null
+          })()}
           <input
             type="text"
             placeholder="Display name (e.g. Olive Oil)"

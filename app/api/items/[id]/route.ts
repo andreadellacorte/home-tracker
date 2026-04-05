@@ -7,6 +7,17 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   const idx = items.findIndex((i) => i.id === params.id)
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+  // Prevent tag collision
+  if (body.tag) {
+    const collision = items.find((i) => i.tag === body.tag && i.id !== params.id)
+    if (collision) {
+      return NextResponse.json(
+        { error: `Tag "${body.tag}" is already assigned to ${collision.name}` },
+        { status: 409 }
+      )
+    }
+  }
+
   items[idx] = { ...items[idx], ...body, id: params.id }
   await saveKnownItems(items)
   return NextResponse.json(items[idx])

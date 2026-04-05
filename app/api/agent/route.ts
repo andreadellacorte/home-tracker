@@ -166,6 +166,15 @@ export async function POST(request: Request) {
       if (!body.slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
       const idx = knownItems.findIndex((i) => i.slug === body.slug)
       if (idx === -1) return NextResponse.json({ error: `Slug "${body.slug}" not found` }, { status: 404 })
+      if (body.tag) {
+        const collision = knownItems.find((i) => i.tag === body.tag && i.slug !== body.slug)
+        if (collision) {
+          return NextResponse.json(
+            { error: `Tag "${body.tag}" is already assigned to ${collision.name}` },
+            { status: 409 }
+          )
+        }
+      }
       const allowed = ['name', 'emoji', 'category', 'active', 'tag']
       const updates = Object.fromEntries(
         Object.entries(body).filter(([k]) => allowed.includes(k))
