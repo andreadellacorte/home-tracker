@@ -16,11 +16,12 @@ function nfcUrl(slug: string) {
   return `${siteUrl()}/add?item=${slug}`
 }
 
-function CopyButton({ slug }: { slug: string }) {
+function CopyButton({ slug, short }: { slug: string; short?: boolean }) {
   const [copied, setCopied] = useState(false)
 
   function copy() {
-    navigator.clipboard?.writeText(nfcUrl(slug))
+    const url = short ? `${siteUrl()}/${slug}` : nfcUrl(slug)
+    navigator.clipboard?.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -103,10 +104,21 @@ function CategorySection({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 font-mono truncate flex-1">
-                  {nfcUrl(item.slug)}
-                </span>
-                <CopyButton slug={item.slug} />
+                {item.tag ? (
+                  <>
+                    <span className="text-xs font-mono text-green-700 bg-green-50 px-1.5 py-0.5 rounded flex-shrink-0">
+                      /{item.tag}
+                    </span>
+                    <span className="text-xs text-gray-300 font-mono truncate flex-1">
+                      {nfcUrl(item.slug)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-400 font-mono truncate flex-1">
+                    {nfcUrl(item.slug)}
+                  </span>
+                )}
+                <CopyButton slug={item.tag || item.slug} short={!!item.tag} />
               </div>
             </li>
           ))}
@@ -116,7 +128,7 @@ function CategorySection({
   )
 }
 
-const EMPTY_FORM = { slug: '', name: '', emoji: '', category: 'Pantry', active: true }
+const EMPTY_FORM = { slug: '', name: '', emoji: '', category: 'Pantry', active: true, tag: '' }
 
 export default function ManagePage() {
   const [items, setItems] = useState<KnownItem[]>([])
@@ -143,7 +155,7 @@ export default function ManagePage() {
 
   function startEdit(item: KnownItem) {
     setEditId(item.id)
-    setForm({ slug: item.slug, name: item.name, emoji: item.emoji || '', category: item.category, active: item.active })
+    setForm({ slug: item.slug, name: item.name, emoji: item.emoji || '', category: item.category, active: item.active, tag: item.tag || '' })
     setError('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -275,13 +287,22 @@ export default function ManagePage() {
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
         <h2 className="font-semibold text-gray-700 mb-3">{editId ? 'Edit Item' : 'New Item'}</h2>
         <div className="space-y-3">
-          <input
-            type="text"
-            placeholder="Slug (e.g. olive-oil)"
-            value={form.slug}
-            onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Slug (e.g. olive-oil)"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+              className="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <input
+              type="text"
+              placeholder="Tag # (e.g. 1)"
+              value={form.tag}
+              onChange={(e) => setForm({ ...form, tag: e.target.value.trim() })}
+              className="w-24 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
           <input
             type="text"
             placeholder="Display name (e.g. Olive Oil)"

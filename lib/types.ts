@@ -5,6 +5,7 @@ export interface KnownItem {
   emoji?: string
   category: string
   active: boolean
+  tag?: string  // short NFC tag identifier, e.g. "1", "2" → URL becomes /<tag>
   createdAt: string
 }
 

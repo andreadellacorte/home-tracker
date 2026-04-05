@@ -56,8 +56,8 @@ export async function GET() {
           id, name, emoji, updated_at: updatedAt,
         })),
     },
-    known_items: knownItems.map(({ slug, name, emoji, category, active }) => ({
-      slug, name, emoji, category, active,
+    known_items: knownItems.map(({ slug, name, emoji, category, active, tag }) => ({
+      slug, name, emoji, category, active, tag,
     })),
     _meta: META,
   })
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
       if (!body.slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
       const idx = knownItems.findIndex((i) => i.slug === body.slug)
       if (idx === -1) return NextResponse.json({ error: `Slug "${body.slug}" not found` }, { status: 404 })
-      const allowed = ['name', 'emoji', 'category', 'active']
+      const allowed = ['name', 'emoji', 'category', 'active', 'tag']
       const updates = Object.fromEntries(
         Object.entries(body).filter(([k]) => allowed.includes(k))
       )
