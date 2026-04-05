@@ -44,11 +44,7 @@ export async function POST(request: Request) {
   )
 
   if (existing) {
-    existing.quantity += body.quantity ?? 1
-    existing.updatedAt = now
-    if (body.addedBy) existing.addedBy = body.addedBy
-    if (body.source) existing.source = body.source
-    await saveShoppingList(list)
+    // Item already on the list — return as-is, no update needed
     return NextResponse.json(existing)
   }
 

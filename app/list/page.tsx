@@ -118,11 +118,6 @@ export default function ListPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {item.quantity > 1 && (
-                    <span className="text-sm font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
-                      ×{item.quantity}
-                    </span>
-                  )}
                   <button
                     onClick={() => remove(item.id)}
                     className="text-gray-300 hover:text-red-400 active:text-red-500 transition-colors p-1"
