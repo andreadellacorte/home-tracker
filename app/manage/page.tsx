@@ -20,7 +20,7 @@ function CopyButton({ slug, short }: { slug: string; short?: boolean }) {
   const [copied, setCopied] = useState(false)
 
   function copy() {
-    const url = short ? `${siteUrl()}/${slug}` : nfcUrl(slug)
+    const url = short ? `${siteUrl()}/nfc/${slug}` : nfcUrl(slug)
     navigator.clipboard?.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -107,7 +107,7 @@ function CategorySection({
                 {item.tag ? (
                   <>
                     <span className="text-xs font-mono text-green-700 bg-green-50 px-1.5 py-0.5 rounded flex-shrink-0">
-                      /{item.tag}
+                      /nfc/{item.tag}
                     </span>
                     <span className="text-xs text-gray-300 font-mono truncate flex-1">
                       {nfcUrl(item.slug)}
