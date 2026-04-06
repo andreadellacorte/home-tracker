@@ -3,18 +3,15 @@
 import { useEffect, useState } from 'react'
 import type { User } from 'netlify-identity-widget'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyMod = any
-
 async function getIdentity() {
-  const mod: AnyMod = await import('netlify-identity-widget')
-  const identity =
-    typeof mod?.init === 'function' ? mod :
-    typeof mod?.default?.init === 'function' ? mod.default :
-    typeof mod?.default?.default?.init === 'function' ? mod.default.default :
-    null
-  if (!identity) throw new Error('netlify-identity-widget: could not resolve init()')
-  return identity as typeof import('netlify-identity-widget')
+  // The package ships a UMD bundle marked as "type":"module". When bundled as
+  // ESM, the UMD factory can't find `module`, so it registers itself on
+  // globalThis.netlifyIdentity instead of exporting. Import to trigger
+  // registration, then read from window.
+  await import('netlify-identity-widget')
+  const identity = (window as Window & typeof globalThis & { netlifyIdentity?: typeof import('netlify-identity-widget') }).netlifyIdentity
+  if (!identity) throw new Error('netlify-identity-widget: not found on window')
+  return identity
 }
 
 function syncName(user: User) {
