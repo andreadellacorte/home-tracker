@@ -1,11 +1,24 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getUser, login, onAuthChange } from '@netlify/identity'
-import type { User } from '@netlify/identity'
+import type { User } from 'netlify-identity-widget'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyMod = any
+
+async function getIdentity() {
+  const mod: AnyMod = await import('netlify-identity-widget')
+  const identity =
+    typeof mod?.init === 'function' ? mod :
+    typeof mod?.default?.init === 'function' ? mod.default :
+    typeof mod?.default?.default?.init === 'function' ? mod.default.default :
+    null
+  if (!identity) throw new Error('netlify-identity-widget: could not resolve init()')
+  return identity as typeof import('netlify-identity-widget')
+}
 
 function syncName(user: User) {
-  const name = user.name || user.email?.split('@')[0] || ''
+  const name = user.user_metadata?.full_name || user.email?.split('@')[0] || ''
   if (name) localStorage.setItem('home-tracker-name', name)
 }
 
@@ -13,20 +26,23 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null | undefined>(undefined)
 
   useEffect(() => {
-    getUser().then((u) => {
-      setUser(u)
-      if (u) syncName(u)
-    })
+    getIdentity().then((identity) => {
+      identity.init()
 
-    return onAuthChange((event, u) => {
-      if (event === 'login' && u) {
+      const current = identity.currentUser()
+      setUser(current)
+      if (current) syncName(current)
+
+      identity.on('login', (u) => {
         syncName(u)
         setUser(u)
-      }
-      if (event === 'logout') {
+        identity.close()
+      })
+
+      identity.on('logout', () => {
         localStorage.removeItem('home-tracker-name')
         setUser(null)
-      }
+      })
     })
   }, [])
 
@@ -44,22 +60,9 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      await login(email, password)
-      // onAuthChange in AuthGate handles state update
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
-      setLoading(false)
-    }
+  async function open() {
+    const identity = await getIdentity()
+    identity.open()
   }
 
   return (
@@ -67,32 +70,12 @@ function LoginScreen() {
       <div className="text-6xl mb-5">🏠</div>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Home Tracker</h1>
       <p className="text-gray-500 mb-8">Sign in to access your shopping list</p>
-      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-base focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-4 bg-green-600 text-white text-xl font-bold rounded-2xl shadow-lg shadow-green-600/20 active:bg-green-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+      <button
+        onClick={open}
+        className="px-8 py-4 bg-green-600 text-white text-xl font-bold rounded-2xl shadow-lg shadow-green-600/20 active:bg-green-700 transition-colors"
+      >
+        Sign in
+      </button>
     </div>
   )
 }
