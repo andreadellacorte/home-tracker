@@ -3,13 +3,19 @@
 import { useEffect, useState } from 'react'
 import type { User } from 'netlify-identity-widget'
 
-// CJS module loaded at runtime only — typed via the @types package
-type Identity = typeof import('netlify-identity-widget') & { default?: unknown }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyMod = any
 
 async function getIdentity() {
-  const mod = await import('netlify-identity-widget') as Identity
-  // Webpack may hoist the export to .default for CJS modules
-  return (mod.default ?? mod) as typeof import('netlify-identity-widget')
+  const mod: AnyMod = await import('netlify-identity-widget')
+  // Webpack can wrap CJS modules in different ways — find whichever layer has init()
+  const identity =
+    typeof mod?.init === 'function' ? mod :
+    typeof mod?.default?.init === 'function' ? mod.default :
+    typeof mod?.default?.default?.init === 'function' ? mod.default.default :
+    null
+  if (!identity) throw new Error('netlify-identity-widget: could not resolve init()')
+  return identity as typeof import('netlify-identity-widget')
 }
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
