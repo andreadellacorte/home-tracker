@@ -3,15 +3,18 @@
 import { useEffect, useState } from 'react'
 import type { User } from 'netlify-identity-widget'
 
-// CJS module — default may land on .default or on the module itself
+// CJS module loaded at runtime only — typed via the @types package
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Identity = typeof import('netlify-identity-widget') & { default?: any }
+
 async function getIdentity() {
-  const mod = await import('netlify-identity-widget')
+  const mod = await import('netlify-identity-widget') as Identity
+  // Webpack may hoist the export to .default for CJS modules
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (mod.default ?? mod) as typeof import('netlify-identity-widget').default
+  return (mod.default ?? mod) as typeof import('netlify-identity-widget')
 }
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  // undefined = still checking, null = logged out, User = logged in
   const [user, setUser] = useState<User | null | undefined>(undefined)
 
   useEffect(() => {
