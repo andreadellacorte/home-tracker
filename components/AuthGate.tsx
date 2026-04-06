@@ -4,13 +4,11 @@ import { useEffect, useState } from 'react'
 import type { User } from 'netlify-identity-widget'
 
 // CJS module loaded at runtime only — typed via the @types package
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Identity = typeof import('netlify-identity-widget') & { default?: any }
+type Identity = typeof import('netlify-identity-widget') & { default?: unknown }
 
 async function getIdentity() {
   const mod = await import('netlify-identity-widget') as Identity
   // Webpack may hoist the export to .default for CJS modules
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (mod.default ?? mod) as typeof import('netlify-identity-widget')
 }
 

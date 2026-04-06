@@ -6,16 +6,18 @@
     "dev": "netlify dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
     "@types/netlify-identity-widget": "^1.9.7",
     "emoji-picker-element": "^1.29.1",
     "netlify-identity-widget": "^2.0.3",
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
+    "next": "^16.2.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.5.0",
@@ -23,8 +25,12 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "eslint": "^9.39.4",
+    "husky": "^9.1.7",
+    "netlify-cli": "^24.10.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.58.0"
   }
 }

@@ -1,0 +1,2 @@
+echo "Running netlify build check before push..."
+npx netlify build
