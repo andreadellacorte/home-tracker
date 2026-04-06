@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server'
 import { getKnownItems, saveKnownItems } from '@/lib/store'
+import { requireAuth, requireAdmin } from '@/lib/auth'
 import type { KnownItem } from '@/lib/types'
 import { randomUUID } from 'crypto'
 
 export async function GET() {
+  const { error } = await requireAuth()
+  if (error) return error
   const items = await getKnownItems()
   return NextResponse.json(items)
 }
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin()
+  if (error) return error
   const body = await request.json()
   const items = await getKnownItems()
 

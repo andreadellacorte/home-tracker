@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getShoppingList, saveShoppingList } from '@/lib/store'
+import { requireAuth } from '@/lib/auth'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { error } = await requireAuth()
+  if (error) return error
   const { id } = await params
   const body = await request.json()
   const list = await getShoppingList()
@@ -14,6 +17,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { error } = await requireAuth()
+  if (error) return error
   const { id } = await params
   const list = await getShoppingList()
   const filtered = list.filter((e) => e.id !== id)

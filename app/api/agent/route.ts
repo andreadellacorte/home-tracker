@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getKnownItems, getShoppingList, saveShoppingList, saveKnownItems } from '@/lib/store'
+import { requireAdmin } from '@/lib/auth'
 import { randomUUID } from 'crypto'
 
 const META = {
@@ -41,6 +42,8 @@ const META = {
 }
 
 export async function GET() {
+  const { error } = await requireAdmin()
+  if (error) return error
   const [list, knownItems] = await Promise.all([getShoppingList(), getKnownItems()])
 
   return NextResponse.json({
@@ -64,6 +67,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin()
+  if (error) return error
   const body = await request.json().catch(() => null)
   if (!body?.action) {
     return NextResponse.json({ error: 'Missing action' }, { status: 400 })

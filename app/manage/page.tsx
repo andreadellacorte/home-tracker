@@ -249,7 +249,7 @@ export default function ManagePage() {
           <p className="font-semibold text-gray-900 truncate">{userName || '—'}</p>
         </div>
         <button
-          onClick={() => import('netlify-identity-widget').then((m) => (m.default ?? m).logout())}
+          onClick={() => import('@netlify/identity').then((m) => m.logout())}
           className="flex-shrink-0 text-sm text-red-500 border border-red-100 rounded-lg px-3 py-1.5 active:bg-red-50 transition-colors"
         >
           Sign out

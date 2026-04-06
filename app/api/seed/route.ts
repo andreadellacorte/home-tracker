@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
 import { getKnownItems, saveKnownItems } from '@/lib/store'
+import { requireAdmin } from '@/lib/auth'
 import { SEED_ITEMS } from '@/lib/seed'
 import type { KnownItem } from '@/lib/types'
 import { randomUUID } from 'crypto'
 
 export async function POST() {
+  const { error } = await requireAdmin()
+  if (error) return error
   const existing = await getKnownItems()
   const existingSlugs = new Set(existing.map((i) => i.slug))
 

@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getKnownItems, getShoppingList, saveShoppingList } from '@/lib/store'
+import { requireAuth } from '@/lib/auth'
 import type { ShoppingListEntry } from '@/lib/types'
 import { randomUUID } from 'crypto'
 
 export async function GET() {
+  const { error } = await requireAuth()
+  if (error) return error
   const list = await getShoppingList()
   return NextResponse.json(list)
 }
@@ -11,6 +14,8 @@ export async function GET() {
 // POST body: { slug?, name?, quantity?, addedBy?, source? }
 // If slug provided, resolves known item and deduplicates active entries.
 export async function POST(request: Request) {
+  const { error } = await requireAuth()
+  if (error) return error
   const body = await request.json()
   const list = await getShoppingList()
   const now = new Date().toISOString()

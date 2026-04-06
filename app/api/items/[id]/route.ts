@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getKnownItems, saveKnownItems } from '@/lib/store'
+import { requireAdmin } from '@/lib/auth'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { error } = await requireAdmin()
+  if (error) return error
   const { id } = await params
   const body = await request.json()
   const items = await getKnownItems()
@@ -24,6 +27,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { error } = await requireAdmin()
+  if (error) return error
   const { id } = await params
   const items = await getKnownItems()
   const filtered = items.filter((i) => i.id !== id)
