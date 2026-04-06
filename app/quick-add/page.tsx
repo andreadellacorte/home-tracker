@@ -4,10 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import type { KnownItem } from '@/lib/types'
+import { getCached, setCached, fetchWithRetry } from '@/lib/cache'
+
+const ITEMS_CACHE = 'home-tracker-items'
 
 export default function QuickAddPage() {
   const [query, setQuery] = useState('')
-  const [knownItems, setKnownItems] = useState<KnownItem[]>([])
+  const [knownItems, setKnownItems] = useState<KnownItem[]>(() => getCached<KnownItem[]>(ITEMS_CACHE) ?? [])
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [lastAdded, setLastAdded] = useState('')
   const [userName, setUserName] = useState('')
@@ -15,7 +18,10 @@ export default function QuickAddPage() {
 
   useEffect(() => {
     setUserName(localStorage.getItem('home-tracker-name') || '')
-    fetch('/api/items').then((r) => r.json()).then(setKnownItems)
+    fetchWithRetry('/api/items').then((r) => r.json()).then((data: KnownItem[]) => {
+      setKnownItems(data)
+      setCached(ITEMS_CACHE, data)
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {

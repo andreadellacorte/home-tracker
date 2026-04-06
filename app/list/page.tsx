@@ -5,6 +5,9 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import InstallBanner from '@/components/InstallBanner'
 import type { ShoppingListEntry } from '@/lib/types'
+import { getCached, setCached, fetchWithRetry } from '@/lib/cache'
+
+const LIST_CACHE = 'home-tracker-list'
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
@@ -17,7 +20,7 @@ function timeAgo(iso: string) {
 }
 
 export default function ListPage() {
-  const [items, setItems] = useState<ShoppingListEntry[]>([])
+  const [items, setItems] = useState<ShoppingListEntry[]>(() => getCached<ShoppingListEntry[]>(LIST_CACHE) ?? [])
   const [loading, setLoading] = useState(true)
   const [undoItem, setUndoItem] = useState<ShoppingListEntry | null>(null)
   const [userName, setUserName] = useState('')
@@ -28,9 +31,14 @@ export default function ListPage() {
   }, [])
 
   async function load() {
-    const res = await fetch('/api/list')
-    setItems(await res.json())
-    setLoading(false)
+    try {
+      const res = await fetchWithRetry('/api/list')
+      const data: ShoppingListEntry[] = await res.json()
+      setItems(data)
+      setCached(LIST_CACHE, data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function markBought(id: string) {
@@ -76,7 +84,7 @@ export default function ListPage() {
           }
         </div>
 
-        {loading && (
+        {loading && items.length === 0 && (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-xl h-16 animate-pulse border border-gray-100" />

@@ -5,6 +5,9 @@ import Nav from '@/components/Nav'
 import EmojiPicker from '@/components/EmojiPicker'
 import type { KnownItem } from '@/lib/types'
 import { CATEGORIES } from '@/lib/types'
+import { getCached, setCached, fetchWithRetry } from '@/lib/cache'
+
+const ITEMS_CACHE = 'home-tracker-items'
 
 function siteUrl() {
   return typeof window !== 'undefined'
@@ -131,7 +134,7 @@ function CategorySection({
 const EMPTY_FORM = { slug: '', name: '', emoji: '', category: 'Pantry', active: true, tag: '' }
 
 export default function ManagePage() {
-  const [items, setItems] = useState<KnownItem[]>([])
+  const [items, setItems] = useState<KnownItem[]>(() => getCached<KnownItem[]>(ITEMS_CACHE) ?? [])
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState(EMPTY_FORM)
   const [editId, setEditId] = useState<string | null>(null)
@@ -145,9 +148,14 @@ export default function ManagePage() {
   }, [])
 
   async function load() {
-    const res = await fetch('/api/items')
-    setItems(await res.json())
-    setLoading(false)
+    try {
+      const res = await fetchWithRetry('/api/items')
+      const data: KnownItem[] = await res.json()
+      setItems(data)
+      setCached(ITEMS_CACHE, data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
