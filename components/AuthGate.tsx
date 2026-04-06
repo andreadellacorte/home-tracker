@@ -3,13 +3,19 @@
 import { useEffect, useState } from 'react'
 import type { User } from 'netlify-identity-widget'
 
+// CJS module — default may land on .default or on the module itself
+async function getIdentity() {
+  const mod = await import('netlify-identity-widget')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (mod.default ?? mod) as typeof import('netlify-identity-widget').default
+}
+
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   // undefined = still checking, null = logged out, User = logged in
   const [user, setUser] = useState<User | null | undefined>(undefined)
 
   useEffect(() => {
-    import('netlify-identity-widget').then((mod) => {
-      const identity = mod.default
+    getIdentity().then((identity) => {
       identity.init()
 
       const current = identity.currentUser()
@@ -37,9 +43,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!user) {
-    return <LoginScreen />
-  }
+  if (!user) return <LoginScreen />
 
   return <>{children}</>
 }
@@ -50,8 +54,9 @@ function syncName(user: User) {
 }
 
 function LoginScreen() {
-  function open() {
-    import('netlify-identity-widget').then((mod) => mod.default.open())
+  async function open() {
+    const identity = await getIdentity()
+    identity.open()
   }
 
   return (
