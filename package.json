@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
+    "@types/netlify-identity-widget": "^1.9.7",
     "emoji-picker-element": "^1.29.1",
+    "netlify-identity-widget": "^2.0.3",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18"

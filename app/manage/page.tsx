@@ -139,7 +139,6 @@ export default function ManagePage() {
   const [error, setError] = useState('')
   const [seeding, setSeeding] = useState(false)
   const [userName, setUserName] = useState('')
-  const [nameSaved, setNameSaved] = useState(false)
 
   useEffect(() => {
     setUserName(localStorage.getItem('home-tracker-name') || '')
@@ -243,39 +242,18 @@ export default function ManagePage() {
 
   return (
     <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
-      {/* Your name */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-        <h2 className="font-semibold text-gray-700 mb-3">Your name</h2>
-        <p className="text-xs text-gray-400 mb-3">Shown on the shared list when you add items.</p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="e.g. Andrea"
-            value={userName}
-            onChange={(e) => { setUserName(e.target.value); setNameSaved(false) }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                localStorage.setItem('home-tracker-name', userName.trim())
-                setNameSaved(true)
-              }
-            }}
-            className="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <button
-            onClick={() => {
-              localStorage.setItem('home-tracker-name', userName.trim())
-              setNameSaved(true)
-              setTimeout(() => setNameSaved(false), 2000)
-            }}
-            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-              nameSaved
-                ? 'bg-green-50 text-green-600 border border-green-200'
-                : 'bg-green-600 text-white active:bg-green-700'
-            }`}
-          >
-            {nameSaved ? '✓ Saved' : 'Save'}
-          </button>
+      {/* Signed in as */}
+      <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-6 shadow-sm flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-gray-400">Signed in as</p>
+          <p className="font-semibold text-gray-900 truncate">{userName || '—'}</p>
         </div>
+        <button
+          onClick={() => import('netlify-identity-widget').then((m) => m.default.logout())}
+          className="flex-shrink-0 text-sm text-red-500 border border-red-100 rounded-lg px-3 py-1.5 active:bg-red-50 transition-colors"
+        >
+          Sign out
+        </button>
       </div>
 
       <div className="flex items-center justify-between mb-6">
