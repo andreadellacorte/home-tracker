@@ -1,2 +1,8 @@
-echo "Running netlify build check before push..."
-npx netlify build
+echo "Running build check before push..."
+# Use netlify build if the site is linked, otherwise fall back to next build
+if npx netlify status --json 2>/dev/null | grep -q '"siteId"'; then
+  npx netlify build
+else
+  echo "Site not linked to Netlify — running next build instead. Run 'netlify link' once to enable full Netlify build checks."
+  npm run build
+fi
