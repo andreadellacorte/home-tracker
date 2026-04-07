@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from 'next'
+import { Geist } from 'next/font/google'
 import AuthGate from '@/components/AuthGate'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { cn } from '@/lib/utils'
 import './globals.css'
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
   title: 'Home Tracker',
@@ -25,9 +26,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className="bg-gray-50 text-gray-900 min-h-screen">
-        <AuthGate>{children}</AuthGate>
+    <html lang="en" className={cn('font-sans', geist.variable)} suppressHydrationWarning>
+      <body className="bg-background text-foreground min-h-screen">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AuthGate>{children}</AuthGate>
+        </ThemeProvider>
       </body>
     </html>
   )

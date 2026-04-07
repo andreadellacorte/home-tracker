@@ -73,10 +73,10 @@ export default function EmojiPicker({ value, onChange, searchQuery }: Props) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-sm hover:bg-gray-50 active:bg-gray-100 transition-colors w-full"
+        className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border text-sm hover:bg-muted active:bg-muted transition-colors w-full"
       >
         <span className="text-2xl w-7 text-center">{value || '?'}</span>
-        <span className="text-gray-500">{value ? 'Change emoji' : 'Pick emoji'}</span>
+        <span className="text-muted-foreground">{value ? 'Change emoji' : 'Pick emoji'}</span>
       </button>
 
       {open && (

@@ -34,8 +34,8 @@ function CopyButton({ slug, short }: { slug: string; short?: boolean }) {
       onClick={copy}
       className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
         copied
-          ? 'border-green-300 bg-green-50 text-green-600'
-          : 'border-gray-200 text-gray-500 active:bg-gray-50'
+          ? 'border-primary/50 bg-primary/10 text-primary'
+          : 'border-border text-muted-foreground active:bg-muted'
       }`}
     >
       {copied ? '✓ Copied' : '⎘ Copy URL'}
@@ -61,46 +61,46 @@ function CategorySection({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="mb-2 rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+    <div className="mb-2 rounded-xl border border-border bg-card overflow-hidden shadow-sm">
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-left"
       >
-        <span className="font-semibold text-gray-700 text-sm">{cat}</span>
+        <span className="font-semibold text-foreground text-sm">{cat}</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">{items.length}</span>
-          <span className={`text-gray-400 text-xs transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
+          <span className="text-xs text-muted-foreground">{items.length}</span>
+          <span className={`text-muted-foreground text-xs transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
             ▼
           </span>
         </div>
       </button>
 
       {open && (
-        <ul className="border-t border-gray-100 divide-y divide-gray-100">
+        <ul className="border-t border-border divide-y divide-border">
           {items.map((item) => (
             <li key={item.id} className={`px-4 py-3 ${!item.active ? 'opacity-50' : ''}`}>
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">
                   {item.emoji && <span className="text-xl flex-shrink-0">{item.emoji}</span>}
-                  <span className="font-semibold text-gray-900 truncate">{item.name}</span>
-                  <span className="text-xs text-gray-400 font-mono flex-shrink-0">{item.slug}</span>
+                  <span className="font-semibold text-foreground truncate">{item.name}</span>
+                  <span className="text-xs text-muted-foreground font-mono flex-shrink-0">{item.slug}</span>
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
                   <button
                     onClick={() => onToggleActive(item)}
-                    className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
+                    className="px-2 py-1 rounded text-xs border border-border text-muted-foreground active:bg-muted"
                   >
                     {item.active ? 'Off' : 'On'}
                   </button>
                   <button
                     onClick={() => onEdit(item)}
-                    className="px-2 py-1 rounded text-xs border border-gray-200 text-gray-500 active:bg-gray-50"
+                    className="px-2 py-1 rounded text-xs border border-border text-muted-foreground active:bg-muted"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onRemove(item.id)}
-                    className="px-2 py-1 rounded text-xs border border-red-100 text-red-400 active:bg-red-50"
+                    className="px-2 py-1 rounded text-xs border border-destructive/30 text-destructive active:bg-destructive/10"
                   >
                     ✕
                   </button>
@@ -109,7 +109,7 @@ function CategorySection({
               <div className="flex items-center gap-2">
                 {item.tag ? (
                   <>
-                    <span className="text-xs font-mono text-green-700 bg-green-50 px-1.5 py-0.5 rounded flex-shrink-0">
+                    <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded flex-shrink-0">
                       /nfc/{item.tag}
                     </span>
                     <span className="text-xs text-gray-300 font-mono truncate flex-1">
@@ -117,7 +117,7 @@ function CategorySection({
                     </span>
                   </>
                 ) : (
-                  <span className="text-xs text-gray-400 font-mono truncate flex-1">
+                  <span className="text-xs text-muted-foreground font-mono truncate flex-1">
                     {nfcUrl(item.slug)}
                   </span>
                 )}
@@ -251,33 +251,33 @@ export default function ManagePage() {
   return (
     <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
       {/* Signed in as */}
-      <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-6 shadow-sm flex items-center justify-between gap-3">
+      <div className="bg-card rounded-xl border border-border px-4 py-3 mb-6 shadow-sm flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs text-gray-400">Signed in as</p>
-          <p className="font-semibold text-gray-900 truncate">{userName || '—'}</p>
+          <p className="text-xs text-muted-foreground">Signed in as</p>
+          <p className="font-semibold text-foreground truncate">{userName || '—'}</p>
         </div>
         <button
           onClick={() => (window as Window & { netlifyIdentity?: { logout: () => void } }).netlifyIdentity?.logout()}
-          className="flex-shrink-0 text-sm text-red-500 border border-red-100 rounded-lg px-3 py-1.5 active:bg-red-50 transition-colors"
+          className="flex-shrink-0 text-sm text-destructive border border-destructive/30 rounded-lg px-3 py-1.5 active:bg-destructive/10 transition-colors"
         >
           Sign out
         </button>
       </div>
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Manage Items</h1>
+        <h1 className="text-2xl font-bold text-foreground">Manage Items</h1>
         <button
           onClick={runSeed}
           disabled={seeding}
-          className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 active:bg-gray-50 disabled:opacity-50"
+          className="text-sm text-muted-foreground border border-border rounded-lg px-3 py-1.5 active:bg-muted disabled:opacity-50"
         >
           {seeding ? 'Seeding…' : 'Seed defaults'}
         </button>
       </div>
 
       {/* Add / Edit form */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-        <h2 className="font-semibold text-gray-700 mb-3">{editId ? 'Edit Item' : 'New Item'}</h2>
+      <div className="bg-card rounded-xl border border-border p-4 mb-6 shadow-sm">
+        <h2 className="font-semibold text-foreground mb-3">{editId ? 'Edit Item' : 'New Item'}</h2>
         <div className="space-y-3">
           <div className="flex gap-2">
             <input
@@ -285,14 +285,14 @@ export default function ManagePage() {
               placeholder="Slug (e.g. olive-oil)"
               value={form.slug}
               onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-              className="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex-1 px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <input
               type="text"
               placeholder="Tag # (e.g. 1)"
               value={form.tag}
               onChange={(e) => setForm({ ...form, tag: e.target.value.trim() })}
-              className="w-24 px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-24 px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           {(() => {
@@ -310,47 +310,47 @@ export default function ManagePage() {
             placeholder="Display name (e.g. Olive Oil)"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <EmojiPicker value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e })} searchQuery={form.name} />
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+            className="w-full px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-card"
           >
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={form.active}
               onChange={(e) => setForm({ ...form, active: e.target.checked })}
-              className="accent-green-600"
+              className="accent-primary"
             />
             Active (shows in autocomplete)
           </label>
         </div>
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        {error && <p className="text-destructive text-sm mt-2">{error}</p>}
         <div className="flex gap-2 mt-3">
           <button
             onClick={save}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-lg bg-green-600 text-white font-semibold text-sm disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
           >
             {saving ? 'Saving…' : editId ? 'Save changes' : 'Add item'}
           </button>
           {editId && (
-            <button onClick={cancelEdit} className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600">
+            <button onClick={cancelEdit} className="px-4 py-2.5 rounded-lg border border-border text-sm text-muted-foreground">
               Cancel
             </button>
           )}
         </div>
       </div>
 
-      {loading && <div className="text-center py-8 text-gray-400">Loading…</div>}
+      {loading && <div className="text-center py-8 text-muted-foreground">Loading…</div>}
 
       {!loading && items.length === 0 && (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-muted-foreground">
           No items yet. Add one above or click &ldquo;Seed defaults&rdquo;.
         </div>
       )}

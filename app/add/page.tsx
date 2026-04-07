@@ -69,14 +69,14 @@ function AddItemInner() {
         <div className="text-5xl mb-4">🏷️</div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">No item specified</h1>
         <p className="text-gray-500 mb-6">Use a URL like /add?item=milk</p>
-        <Link href="/list" className="text-green-600 font-semibold">Go to list →</Link>
+        <Link href="/list" className="text-primary font-semibold">Go to list →</Link>
       </div>
     )
   }
 
   if (state === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
         Adding…
       </div>
     )
@@ -86,8 +86,8 @@ function AddItemInner() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <div className="text-5xl mb-4">⚠️</div>
-        <p className="text-gray-700 font-semibold mb-2">Something went wrong</p>
-        <Link href="/list" className="text-green-600 font-semibold">Go to list →</Link>
+        <p className="text-foreground font-semibold mb-2">Something went wrong</p>
+        <Link href="/list" className="text-primary font-semibold">Go to list →</Link>
       </div>
     )
   }
@@ -97,8 +97,8 @@ function AddItemInner() {
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <div className="text-6xl mb-4">{entry?.emoji || '↩️'}</div>
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Removed</h1>
-        <p className="text-gray-400 text-sm mb-8">{entry?.name} was taken off the list</p>
-        <Link href="/list" className="text-green-600 font-semibold">View list →</Link>
+        <p className="text-muted-foreground text-sm mb-8">{entry?.name} was taken off the list</p>
+        <Link href="/list" className="text-primary font-semibold">View list →</Link>
       </div>
     )
   }
@@ -106,7 +106,7 @@ function AddItemInner() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
       {/* Green check circle */}
-      <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mb-5 shadow-lg shadow-green-500/30 animate-fade-in-up">
+      <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center mb-5 shadow-lg shadow-primary/30 animate-fade-in-up">
         <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
@@ -126,7 +126,7 @@ function AddItemInner() {
         {entry?.name}
       </h1>
       <p
-        className="text-green-600 font-semibold text-lg mb-10 animate-fade-in-up"
+        className="text-primary font-semibold text-lg mb-10 animate-fade-in-up"
         style={{ animationDelay: '100ms' }}
       >
         Added to your list!
@@ -135,13 +135,13 @@ function AddItemInner() {
       <div className="flex gap-3 animate-fade-in-up" style={{ animationDelay: '140ms' }}>
         <button
           onClick={handleUndo}
-          className="px-6 py-3 rounded-xl border-2 border-gray-200 font-semibold text-gray-600 active:bg-gray-50 transition-colors"
+          className="px-6 py-3 rounded-xl border-2 border-border font-semibold text-foreground active:bg-muted transition-colors"
         >
           Undo
         </button>
         <Link
           href="/list"
-          className="px-6 py-3 rounded-xl bg-green-600 text-white font-semibold shadow-md shadow-green-600/20"
+          className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
         >
           View list
         </Link>
@@ -152,7 +152,7 @@ function AddItemInner() {
 
 export default function AddPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400">Loading…</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>}>
       <AddItemInner />
     </Suspense>
   )

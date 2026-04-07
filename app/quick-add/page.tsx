@@ -59,9 +59,9 @@ export default function QuickAddPage() {
   return (
     <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Quick Add</h1>
+        <h1 className="text-2xl font-bold text-foreground">Quick Add</h1>
         {userName && (
-          <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
+          <Link href="/manage" className="text-xs text-muted-foreground">Hi, {userName} · change</Link>
         )}
       </div>
 
@@ -73,21 +73,21 @@ export default function QuickAddPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && query.trim() && addItem(query.trim())}
-          className="w-full px-4 py-4 rounded-xl border border-gray-200 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-4 py-4 rounded-xl border border-border bg-card text-foreground text-lg focus:outline-none focus:ring-2 focus:ring-ring"
           autoFocus
         />
       </div>
 
       {suggestions.length > 0 && (
-        <ul className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 mb-4 overflow-hidden shadow-sm">
+        <ul className="bg-card rounded-xl border border-border divide-y divide-border mb-4 overflow-hidden shadow-sm">
           {suggestions.map((item) => (
             <li key={item.id}>
               <button
                 onClick={() => addItem(item.name, item.slug)}
-                className="w-full text-left px-4 py-3.5 flex items-center justify-between active:bg-gray-50 transition-colors"
+                className="w-full text-left px-4 py-3.5 flex items-center justify-between active:bg-muted transition-colors"
               >
-                <span className="font-medium text-gray-900">{item.name}</span>
-                <span className="text-xs text-gray-400">{item.category}</span>
+                <span className="font-medium text-foreground">{item.name}</span>
+                <span className="text-xs text-muted-foreground">{item.category}</span>
               </button>
             </li>
           ))}
@@ -98,7 +98,7 @@ export default function QuickAddPage() {
         <button
           onClick={() => addItem(query.trim())}
           disabled={status === 'loading'}
-          className="w-full py-4 rounded-xl bg-green-600 text-white text-lg font-bold active:bg-green-700 disabled:opacity-50 transition-colors"
+          className="w-full py-4 rounded-xl bg-primary text-primary-foreground text-lg font-bold active:opacity-90 disabled:opacity-50 transition-opacity"
         >
           Add &ldquo;{query}&rdquo;
         </button>
@@ -108,20 +108,20 @@ export default function QuickAddPage() {
         <button
           onClick={() => addItem(query.trim())}
           disabled={status === 'loading'}
-          className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 text-sm font-medium active:bg-gray-50 transition-colors"
+          className="w-full py-3 rounded-xl border-2 border-dashed border-border text-muted-foreground text-sm font-medium active:bg-muted transition-colors"
         >
           Add &ldquo;{query}&rdquo; as new item
         </button>
       )}
 
       {status === 'success' && (
-        <div className="mt-4 bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm font-medium text-center">
+        <div className="mt-4 bg-primary/10 text-primary rounded-xl px-4 py-3 text-sm font-medium text-center">
           ✓ {lastAdded} added to list!{' '}
           <Link href="/list" className="underline">View list</Link>
         </div>
       )}
       {status === 'error' && (
-        <div className="mt-4 bg-red-50 text-red-600 rounded-xl px-4 py-3 text-sm text-center">
+        <div className="mt-4 bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm text-center">
           Something went wrong. Try again.
         </div>
       )}

@@ -77,9 +77,9 @@ export default function ListPage() {
 
       <main className="pb-24 pt-4 max-w-lg mx-auto px-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">Shopping List</h1>
+          <h1 className="text-2xl font-bold text-foreground">Shopping List</h1>
           {userName
-            ? <Link href="/manage" className="text-xs text-gray-400">Hi, {userName} · change</Link>
+            ? <Link href="/manage" className="text-xs text-muted-foreground">Hi, {userName} · change</Link>
             : <Link href="/manage" className="text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-lg">Set your name →</Link>
           }
         </div>
@@ -87,7 +87,7 @@ export default function ListPage() {
         {loading && items.length === 0 && (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl h-16 animate-pulse border border-gray-100" />
+              <div key={i} className="bg-card rounded-xl h-16 animate-pulse border border-border" />
             ))}
           </div>
         )}
@@ -95,8 +95,8 @@ export default function ListPage() {
         {!loading && active.length === 0 && (
           <div className="text-center py-16 animate-fade-in-up">
             <div className="text-5xl mb-3">🛒</div>
-            <p className="text-gray-500 text-lg">Your list is empty</p>
-            <p className="text-gray-400 text-sm mt-1">Tap an NFC tag or use Quick Add</p>
+            <p className="text-muted-foreground text-lg">Your list is empty</p>
+            <p className="text-muted-foreground text-sm mt-1">Tap an NFC tag or use Quick Add</p>
           </div>
         )}
 
@@ -105,20 +105,20 @@ export default function ListPage() {
             {active.map((item, idx) => (
               <li
                 key={item.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 px-4 py-3 animate-fade-in-up"
+                className="bg-card rounded-xl shadow-sm border border-border flex items-center gap-3 px-4 py-3 animate-fade-in-up"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <button
                   onClick={() => markBought(item.id)}
-                  className="w-7 h-7 rounded-full border-2 border-green-500 flex-shrink-0 hover:bg-green-50 active:bg-green-100 transition-colors"
+                  className="w-7 h-7 rounded-full border-2 border-primary flex-shrink-0 hover:bg-primary/10 active:bg-primary/20 transition-colors"
                   aria-label="Mark as bought"
                 />
                 {item.emoji && (
                   <span className="text-2xl flex-shrink-0">{item.emoji}</span>
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-gray-900 truncate">{item.name}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">
+                  <div className="font-semibold text-foreground truncate">{item.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
                     {item.addedBy && <span>{item.addedBy} · </span>}
                     {item.source === 'nfc' && <span>via NFC · </span>}
                     {item.source === 'quick-add' && <span>typed · </span>}
@@ -128,7 +128,7 @@ export default function ListPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => remove(item.id)}
-                    className="text-gray-300 hover:text-red-400 active:text-red-500 transition-colors p-1"
+                    className="text-muted-foreground hover:text-destructive active:text-destructive transition-colors p-1"
                     aria-label="Remove item"
                   >
                     ✕
@@ -141,24 +141,24 @@ export default function ListPage() {
 
         {bought.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
               Bought ({bought.length})
             </h2>
             <ul className="space-y-1.5">
               {bought.map((item) => (
                 <li
                   key={item.id}
-                  className="bg-white rounded-xl border border-gray-100 flex items-center gap-3 px-4 py-2.5 opacity-60"
+                  className="bg-card rounded-xl border border-border flex items-center gap-3 px-4 py-2.5 opacity-60"
                 >
-                  <div className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs">✓</span>
+                  <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary-foreground text-xs">✓</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-600 line-through truncate">{item.name}</div>
+                    <div className="font-medium text-muted-foreground line-through truncate">{item.name}</div>
                   </div>
                   <button
                     onClick={() => remove(item.id)}
-                    className="text-gray-300 hover:text-red-400 transition-colors p-1 text-sm"
+                    className="text-muted-foreground hover:text-destructive transition-colors p-1 text-sm"
                     aria-label="Remove item"
                   >
                     ✕
@@ -170,11 +170,11 @@ export default function ListPage() {
         )}
 
         {undoItem && (
-          <div className="fixed bottom-20 inset-x-4 max-w-sm mx-auto bg-gray-800 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-lg z-40 animate-slide-up">
+          <div className="fixed bottom-20 inset-x-4 max-w-sm mx-auto bg-popover text-popover-foreground rounded-xl px-4 py-3 flex items-center justify-between shadow-lg z-40 animate-slide-up">
             <span className="text-sm">{undoItem.name} marked as bought</span>
             <button
               onClick={() => undoBought(undoItem.id)}
-              className="text-green-400 font-semibold text-sm ml-4"
+              className="text-primary font-semibold text-sm ml-4"
             >
               Undo
             </button>

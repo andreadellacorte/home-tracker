@@ -45,7 +45,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (user === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
         Loading…
       </div>
     )
@@ -63,13 +63,13 @@ function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-background">
       <div className="text-6xl mb-5">🏠</div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Home Tracker</h1>
-      <p className="text-gray-500 mb-8">Sign in to access your shopping list</p>
+      <h1 className="text-2xl font-bold text-foreground mb-2">Home Tracker</h1>
+      <p className="text-muted-foreground mb-8">Sign in to access your shopping list</p>
       <button
         onClick={open}
-        className="px-8 py-4 bg-green-600 text-white text-xl font-bold rounded-2xl shadow-lg shadow-green-600/20 active:bg-green-700 transition-colors"
+        className="px-8 py-4 bg-primary text-primary-foreground text-xl font-bold rounded-2xl shadow-lg active:opacity-90 transition-opacity"
       >
         Sign in
       </button>

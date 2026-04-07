@@ -51,30 +51,30 @@ export default function InstallBanner() {
 
   return (
     <div className="fixed top-0 inset-x-0 z-50 animate-slide-down">
-      <div className="bg-green-600 text-white px-4 py-3 flex items-center gap-3 shadow-md">
+      <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center gap-3 shadow-md">
         <span className="text-2xl">🏠</span>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm leading-tight">Add to home screen</p>
           {platform === 'ios' && (
-            <p className="text-green-100 text-xs mt-0.5">
+            <p className="text-primary-foreground/80 text-xs mt-0.5">
               Tap <strong>Share</strong> then <strong>Add to Home Screen</strong>
             </p>
           )}
           {platform === 'android' && (
-            <p className="text-green-100 text-xs mt-0.5">Use it like an app, works offline</p>
+            <p className="text-primary-foreground/80 text-xs mt-0.5">Use it like an app, works offline</p>
           )}
         </div>
         {platform === 'android' && (
           <button
             onClick={install}
-            className="flex-shrink-0 bg-white text-green-700 font-bold text-sm px-3 py-1.5 rounded-lg"
+            className="flex-shrink-0 bg-background text-primary font-bold text-sm px-3 py-1.5 rounded-lg"
           >
             Install
           </button>
         )}
         <button
           onClick={dismiss}
-          className="flex-shrink-0 text-green-200 text-lg px-1"
+          className="flex-shrink-0 text-primary-foreground/60 text-lg px-1"
           aria-label="Dismiss"
         >
           ✕
